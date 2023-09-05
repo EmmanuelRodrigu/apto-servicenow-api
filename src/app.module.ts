@@ -12,6 +12,13 @@ import { ClientsModule } from './modules/clients/clients.module';
 import { PaymentsModule } from './modules/payments/payments.module';
 import { NewsletterModule } from './modules/newsletter/newsletter.module';
 import { AuthModule } from './modules/auth/auth.module';
+import {
+  DB_HOST,
+  DB_NAME,
+  DB_PASSWORD,
+  DB_PORT,
+  DB_USER,
+} from './config/constants'
 
 @Module({
   imports: [
@@ -23,11 +30,11 @@ import { AuthModule } from './modules/auth/auth.module';
     }),
     TypeOrmModule.forRoot({
       type: "mysql",
-      host: "localhost",
-      port: 3306,
-      username: "root",
-      password: "3031022a",
-      database: "apto_servicenow",
+      host: DB_HOST,
+      port: DB_PORT,
+      username: DB_USER,
+      password: DB_PASSWORD,
+      database: DB_NAME,
       entities: [
           __dirname + '/**/*.entity{.ts,.js}'
       ],
