@@ -18,6 +18,7 @@ import {
   DB_PASSWORD,
   DB_PORT,
   DB_USER,
+  PORT
 } from './config/constants'
 
 @Module({

@@ -3,7 +3,7 @@ export const APP_NAME = 'APP_NAME';
 export const APP_URL = 'APP_URL';
 //export const WEB_URL = 'WEB_URL';
 //export const ADMIN_URL = 'ADMIN_URL';
-export const PORT = process.env.PORT || 3001
+export const PORT = 'PORT';
 //export const DATABASE_URL = 'DATABASE_URL';
 
 //export const MAIL_HOST = 'MAIL_HOST';

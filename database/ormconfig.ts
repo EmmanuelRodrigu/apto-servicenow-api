@@ -10,7 +10,7 @@ import {
 export const config: TypeOrmModuleOptions = {
     type: "mysql",
     host: DB_HOST,
-    port: DB_PORT,
+    port: 3001,
     username: DB_USER,
     password: DB_PASSWORD,
     database: DB_NAME,
