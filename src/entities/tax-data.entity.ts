@@ -1,7 +1,8 @@
 import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
 
-@Entity({name: "type_request"})
-export class TypeRequest {
+
+@Entity({name: 'tax_data'})
+export class TaxData {
 
     @PrimaryGeneratedColumn({
         type: 'int',
@@ -11,11 +12,6 @@ export class TypeRequest {
     @Column({
         type: 'varchar',
     })
-    type: string;
-
-    @Column({
-        type: 'varchar',
-    })
-    description: string;
+    name_tax_data: string;
 
 }

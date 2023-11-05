@@ -1,8 +1,9 @@
-import { Body, Controller, Post, HttpCode, HttpStatus, Get, Request } from '@nestjs/common';
+import { Body, Controller, Post, HttpCode, HttpStatus, Get, Request, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dtos/login.dto';
 import { ApiTags } from '@nestjs/swagger/dist';
 import { LoginWithGoogleDto } from './dtos/login-google.dto';
+import { JwtAuthGuard } from './jwt-auth-guard';
 
 @Controller('auth')
 export class AuthController {
@@ -11,8 +12,9 @@ export class AuthController {
     @ApiTags('login')
     @HttpCode(HttpStatus.OK)
     @Post('login')
-    signIn(@Body() credentials: LoginDto) {
-        return this.authService.signIn(credentials);
+    async signIn(@Body() credentials: LoginDto) {
+        const signin = await this.authService.signIn(credentials);
+        return signin;
     }
 
     @ApiTags('google-auth')
@@ -28,9 +30,12 @@ export class AuthController {
         return this.authService.logOut(email);
     }
 
+    @UseGuards(JwtAuthGuard)
     @Get('me')
-    async getAuth(@Request() user) {
-        
+    async getAuth(@Request() req) {
+        const { user } = req;
+        const findUser = await this.authService.authMe(user);
+        return findUser;
     }
 
 } 

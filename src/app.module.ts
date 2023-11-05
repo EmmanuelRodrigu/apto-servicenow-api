@@ -12,13 +12,13 @@ import { ClientsModule } from './modules/clients/clients.module';
 import { PaymentsModule } from './modules/payments/payments.module';
 import { NewsletterModule } from './modules/newsletter/newsletter.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { config } from '.././database/ormconfig';
 import {
   DB_HOST,
   DB_NAME,
   DB_PASSWORD,
   DB_PORT,
   DB_USER,
-  PORT
 } from './config/constants'
 
 @Module({

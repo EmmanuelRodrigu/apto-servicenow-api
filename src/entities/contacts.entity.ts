@@ -21,6 +21,7 @@ export class Contacts {
 
     @Column({
         type: 'varchar',
+        unique: true,
     })
     email: string;
 
@@ -29,15 +30,22 @@ export class Contacts {
     })
     phone: string;
 
-    @ManyToOne((contact) => Client, (client) => client.contact)
-    @JoinColumn({
-        name: 'clientId',
+    @Column({
+        type: 'varchar',
     })
-    clientId: Client;
+    area: string;
 
     @Column({
         type: 'tinyint',
     })
     is_major_contact: boolean;
+
+    @Column({
+        type: 'int',
+    })
+    clientId: number
+
+    @ManyToOne((clientId) => Client, (client) => client.contact )
+    client: Client[];
 
 }

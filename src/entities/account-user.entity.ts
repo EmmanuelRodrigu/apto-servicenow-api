@@ -9,10 +9,6 @@ export class AccountUser {
     })
     id: number;
 
-    @OneToOne(() => User)
-    @Column({name: 'userId'})
-    userId: number;
-
     @Column({
         type: 'varchar',
         unique: true,
@@ -41,6 +37,7 @@ export class AccountUser {
         default: false,
     })
     emailVerified: boolean;
+    
     @Column({
         type: 'tinyint',
         default: false,

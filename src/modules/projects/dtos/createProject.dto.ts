@@ -28,4 +28,10 @@ export class CreateProjectDto {
     })
     typeProject: [];
 
+    @ApiProperty()
+    @IsNotEmpty({
+        message: 'El campo cliente es requerido'
+    })
+    clientId: number;
+
 }

@@ -1,5 +1,7 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, OneToOne, JoinColumn } from 'typeorm';
 import { Newsletter } from './newsletter.entity';
+import { AccountUser } from './account-user.entity';
+import { Rol } from './rol.entity';
 
 @Entity({name: 'users'})
 export class User {
@@ -8,6 +10,13 @@ export class User {
         type: 'int',
     })
     id: number;
+
+    @OneToOne(() => AccountUser)
+    @JoinColumn()
+    accountUser: number;
+
+    @Column()
+    accountUserId: number;
 
     @Column({
         type: 'varchar',
@@ -31,5 +40,13 @@ export class User {
 
     @OneToMany(() => Newsletter, newsletter => newsletter.created_by)
     users: Newsletter[]
+
+    @Column({
+        type: 'int'
+    })
+    rolId: number;
+
+    @ManyToOne(() => Rol, (rol) => rol.users)
+    rol: Rol
 
 }

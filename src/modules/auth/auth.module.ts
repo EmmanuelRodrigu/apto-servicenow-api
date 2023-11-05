@@ -6,17 +6,26 @@ import { AuthController } from './auth.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from 'src/entities/user.entity';
 import { AccountUser } from 'src/entities/account-user.entity';
+import { ModulePermissions } from 'src/entities/modules-permissions.entity';
+import { Rol } from 'src/entities/rol.entity';
+import { AccountClient } from 'src/entities/account-client.entity';
+import { Client } from 'src/entities/client.entity';
 import { JwtStrategy } from './jwt.strategy';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([
-      User, AccountUser,
+      User,
+      AccountUser, 
+      ModulePermissions, 
+      Rol, 
+      AccountClient, 
+      Client,
     ]),
     JwtModule.register({
       global: true,
       secret: jwtConstants.secret,
-      signOptions: {expiresIn: '60s'},
+      signOptions: {expiresIn: '24h'},
     })
   ],
   providers: [AuthService, JwtStrategy],

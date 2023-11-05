@@ -1,5 +1,6 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { UserRol } from "./user-rol.entity";
+import { User } from "./user.entity";
 
 @Entity({name: "rol"})
 export class Rol {
@@ -13,4 +14,7 @@ export class Rol {
         type: 'varchar',
     })
     rol_name: string;
+
+    @OneToMany(() => User, (user) => user.rol)
+    users: User[]
 }

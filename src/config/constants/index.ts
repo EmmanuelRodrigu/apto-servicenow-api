@@ -21,5 +21,8 @@ export const BASE_PREFIX_ADMIN = 'admin';
 export const DB_HOST = process.env.DB_HOST || 'localhost';
 export const DB_USER = process.env.DB_USER || 'root';
 export const DB_PASSWORD = process.env.DB_PASSWORD || '3031022a';
-export const DB_NAME = process.env.DB_NAME || 'apto_service_now';
+export const DB_NAME = process.env.DB_NAME || 'apto_servicenow';
 export const DB_PORT = parseInt(process.env.DB_PORT) || 3306;
+
+export const FOR_PAGE = 10;
+export const DEFAULT_PAGE = 1;

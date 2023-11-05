@@ -5,43 +5,109 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from 'src/entities/user.entity';
 import { AccountUser } from 'src/entities/account-user.entity';
+import { Rol } from 'src/entities/rol.entity';
 import * as bcrypt from 'bcrypt';
 import { LoginWithGoogleDto } from './dtos/login-google.dto';
+import { ModulePermissions } from 'src/entities/modules-permissions.entity';
+import { AccountClient } from 'src/entities/account-client.entity';
+import { Client } from 'src/entities/client.entity';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
     @InjectRepository(AccountUser) private accountUserRepository: Repository<AccountUser>,
+    @InjectRepository(ModulePermissions) private modulePermissionsRepository: Repository<ModulePermissions>,
+    @InjectRepository(Rol) private rolRepository: Repository<Rol>,
+    @InjectRepository(AccountClient) private accountClientRepository: Repository<AccountClient>,
+    @InjectRepository(Client) private clientRepository: Repository<Client>,
     private jwtService: JwtService
-  ) {}
+  ) { }
+
+  async signInPortal(email: string, password: string) {
+    const findClient = await this.accountClientRepository.findOne({ where: { email: email } });
+    if (!findClient) {
+      return new HttpException('No se encontro el email', HttpStatus.NOT_FOUND);
+    };
+    
+    const isMatch = await bcrypt.compare(password, findClient.password);
+    if (!isMatch) {
+      return new HttpException('Contraseña incorrecta', HttpStatus.CONFLICT);
+    };
+    
+    const active = await this.accountClientRepository.update(findClient.id, { isActive: true });
+    if (!active) {
+      return new HttpException('Error al activar usuario', HttpStatus.CONFLICT);
+    };
+
+    const client = await this.clientRepository.findOne({ where: { accountClientId: findClient.id } });
+    const payload = { id: client.id, username: client.name, email: email };
+    console.log(client.id)
+    return {
+      user: {
+        id: client.id,
+        email: findClient.email,
+        name: client.name,
+        rol: 'Client',
+      },
+      isActive: true,
+      access_token: await this.jwtService.signAsync(payload),
+    };
+  }
 
   async signIn(credentials: LoginDto) {
     const { email, password } = credentials;
-    const findUser = await this.accountUserRepository.findOne({ where: {email: email} });
+    if(!email.includes('@apto')) {
+      return this.signInPortal(email, password);
+    }
+    const findUser = await this.accountUserRepository.findOne({ where: { email: email } });
     if (!findUser) {
-        return new HttpException('No se encontro el email', HttpStatus.NOT_FOUND);
+      return new HttpException('No se encontro el email', HttpStatus.NOT_FOUND);
     };
+
+    
     const isMatch = await bcrypt.compare(password, findUser.password);
     if (!isMatch) {
       return new HttpException('Contraseña incorrecta', HttpStatus.CONFLICT);
     };
-    const active = await this.accountUserRepository.update(findUser.id, {isActive: true});
+    
+    const active = await this.accountUserRepository.update(findUser.id, { isActive: true });
     if (!active) {
       return new HttpException('Error al activar usuario', HttpStatus.CONFLICT);
     };
-    const user = await this.userRepository.findOne({where: {id: findUser.userId}});
-    const payload = { id: user.id, username: user.full_name };
+
+    const user = await this.userRepository.findOne({ where: { accountUserId: findUser.id } });
+    const payload = { id: user.id, username: user.full_name, email: email };
+    
+    const modules = await this.modulePermissionsRepository.findOne({
+      where: { id: user.rolId }
+    })
+
+    let modulesPermissions = [
+      modules.dashboard ? 'Dashboard' : null,
+      modules.news ? 'News': null,
+      modules.clients ? 'Clients' : null,
+      modules.projects ? 'Projects' : null,
+      modules.requests ? 'Requests' : null,
+      modules.users ? 'Users' : null,
+      modules.payments ? 'Payments' : null,
+    ]
+    modulesPermissions = modulesPermissions.filter(module => module != null)
+
+    const rol = await this.rolRepository.findOne({
+      where: { id: user.rolId }
+    });
+
     return {
       user: {
-        id: findUser.userId,
+        id: user.id,
         email: findUser.email,
-        created_at: findUser.created_at,
-        name: user.name,
-        first_last_name: user.first_last_name,
-        second_last_name: user.second_last_name,
-        full_name: user.full_name,
+        firstName: user.name,
+        lastName: user.first_last_name + user.second_last_name,
+        fullName: user.full_name,
+        rol: rol.rol_name,
       },
+      modulesPermissions,
       isActive: true,
       access_token: await this.jwtService.signAsync(payload),
     };
@@ -49,20 +115,78 @@ export class AuthService {
 
   async signInWithGoogle(credentials: LoginWithGoogleDto) {
     const { email } = credentials;
-    const updateSession = await this.accountUserRepository.update({email: email}, {isActive: true, googleAuth: true})
-    if(!updateSession) {
+    const updateSession = await this.accountUserRepository.update({ email: email }, { isActive: true, googleAuth: true })
+    if (!updateSession) {
       return new HttpException('Error al iniciar sesion con google', HttpStatus.CONFLICT);
     }
     return updateSession;
   }
 
   async logOut(email: string) {
-    const logOutSession = await this.accountUserRepository.update({email: email}, {isActive: false, googleAuth: false});
-    if(!logOutSession) {
+    const logOutSession = await this.accountUserRepository.update({ email: email }, { isActive: false, googleAuth: false });
+    if (!logOutSession) {
       return new HttpException('Ah ocurrido un error', HttpStatus.CONFLICT);
     }
     return logOutSession;
   }
 
+  async authMePortal(userId: number) {
+    const client = await this.clientRepository.findOne({ where: { id: userId } })
+    const accountClient = await this.accountUserRepository.findOne({ where: { id: client.accountClientId } })
+    if (!accountClient) {
+      return new HttpException('El usuario no existe', HttpStatus.CONFLICT);
+    };
+
+    return {
+      user: {
+        id: client.id,
+        email: accountClient.email,
+        name: client.name,
+        rol: 'Client',
+      },
+    }
+  }
+
+  async authMe(userData: { userId: number, username: string, email: string }) {
+    if(!userData.email.includes('@apto')) {
+      return this.authMePortal(userData.userId);
+    }
+    const user = await this.userRepository.findOne({ where: { id: userData.userId } })
+    const accountUser = await this.accountUserRepository.findOne({ where: { id: user.accountUserId } })
+    if (!accountUser) {
+      return new HttpException('El usuario no existe', HttpStatus.CONFLICT);
+    };
+
+    const modules = await this.modulePermissionsRepository.findOne({
+      where: { id: user.rolId }
+    })
+
+    let modulesPermissions = [
+      modules.dashboard ? 'Dashboard' : null,
+      modules.news ? 'News': null,
+      modules.clients ? 'Clients' : null,
+      modules.projects ? 'Projects' : null,
+      modules.requests ? 'Requests' : null,
+      modules.users ? 'Users' : null,
+      modules.payments ? 'Payments' : null,
+    ]
+    modulesPermissions = modulesPermissions.filter(module => module != null);
+
+    const rol = await this.rolRepository.findOne({
+      where: { id: user.rolId }
+    });
+
+    return {
+      user: {
+        id: user.id,
+        email: accountUser.email,
+        firstName: user.name,
+        lastName: user.first_last_name + user.second_last_name,
+        fullName: user.full_name,
+        rol: rol.rol_name,
+      },
+      modulesPermissions
+    }
+  }
 
 }

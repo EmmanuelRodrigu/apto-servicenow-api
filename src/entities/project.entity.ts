@@ -1,5 +1,12 @@
-import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm";
-import { TypeProject } from "./type-project.entity";
+import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Client } from "./client.entity";
+import { SupportRequest } from "./support-request.entity";
+
+enum TypeProject {
+    software = "software",
+    service_desk = "service_desk",
+    business = "business",
+}
 
 @Entity({name: "projects"})
 export class Project {
@@ -7,11 +14,26 @@ export class Project {
     @PrimaryGeneratedColumn({
         type: 'int',
     })
-    id: string;
+    id: number;
 
-    @OneToOne(() => TypeProject)
-    @JoinColumn()
-    project: TypeProject;
+    @Column({
+        type: 'int',
+        name: 'id_jira',
+    })
+    id_jira: number;
+
+    @Column({
+        type: 'varchar',
+        name: 'key',
+    })
+    key: string;
+
+    @Column({
+        type: 'enum',
+        enum: TypeProject,
+        default: TypeProject.software,
+    })
+    type_project: TypeProject;
 
     @Column({
         type: 'varchar',
@@ -20,13 +42,32 @@ export class Project {
 
     @Column({
         type: 'varchar',
+        nullable: true,
     })
     description: string;
 
     @Column({
-        type: 'int',
-        default: 0,
+        type: 'varchar',
+        name: 'avatar_url',
     })
-    no_request_support: number;
+    avatar_url: string;
+
+    @Column({
+        type: 'int',
+        nullable: true
+    })
+    clientId: number;
+
+    @ManyToOne((type) => Client, (client) => client.project )
+    client: Client[];
+
+    @Column({
+        type: 'datetime',
+        default: () => 'CURRENT_TIMESTAMP',
+    })
+    created_at: Date;
+
+    @OneToMany((type) => SupportRequest, (request) => request.project)
+    request: SupportRequest;
 
 }

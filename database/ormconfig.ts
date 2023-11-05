@@ -6,11 +6,12 @@ import {
     DB_PORT,
     DB_USER,
 } from '../src/config/constants'
+import { DataSource } from 'typeorm';
 
 export const config: TypeOrmModuleOptions = {
     type: "mysql",
     host: DB_HOST,
-    port: 3001,
+    port: DB_PORT,
     username: DB_USER,
     password: DB_PASSWORD,
     database: DB_NAME,
@@ -19,6 +20,7 @@ export const config: TypeOrmModuleOptions = {
     ],
     synchronize: true,
 };
+
 /*
 export const ormConfig = {
     ...config,

@@ -2,7 +2,7 @@ import { ApiProperty } from "@nestjs/swagger";
 import { IsNotEmpty, IsOptional } from "class-validator";
 import { SecondaryContact } from "./secondary-contact.dto";
 
-export class CreateClientDto {
+export class UpdateClientDto {
 
     @ApiProperty()
     @IsOptional()
@@ -10,7 +10,7 @@ export class CreateClientDto {
 
     @ApiProperty()
     @IsNotEmpty({
-        message: 'El campo regimen fiscal es requerido',
+        message: "El campo rfc es requerido",
     })
     tax_data: number;
     
