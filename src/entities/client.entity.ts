@@ -3,6 +3,7 @@ import { Contacts } from "./contacts.entity";
 import { Project } from "./project.entity";
 import { AccountClient } from "./account-client.entity";
 import { SupportRequest } from "./support-request.entity";
+import { Weekly } from "./weekly.entity";
 
 @Entity({name: "client"})
 export class Client {
@@ -70,5 +71,8 @@ export class Client {
         nullable: true,
     })
     accountClientId: number;
+
+    @OneToMany((type) => Weekly, (weekly) => weekly.client)
+    weekly: Weekly[];
 
 }

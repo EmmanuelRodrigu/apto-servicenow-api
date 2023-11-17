@@ -1,4 +1,18 @@
-import { Controller, Post, Get, Body, UseGuards, Param, ParseIntPipe, Query, DefaultValuePipe, Put, Delete, Request } from '@nestjs/common';
+import { 
+    Controller, 
+    Post, 
+    Get, 
+    Body, 
+    UseGuards, 
+    Param, 
+    ParseIntPipe, 
+    Query, 
+    DefaultValuePipe, 
+    Put, 
+    Delete, 
+    UploadedFile,
+    UseInterceptors 
+} from '@nestjs/common';
 import { RequestsService } from './requests.service';
 import { ApiTags } from '@nestjs/swagger';
 import { CreateRequestDto } from './dtos/create-request-dto';
@@ -7,6 +21,7 @@ import { AcceptRequest } from './dtos/accept-request.dto';
 import { CreateCommentDto } from './dtos/create-commet.dto';
 import { BASE_PREFIX_API, FOR_PAGE, DEFAULT_PAGE } from 'src/config/constants';
 import { JwtAuthGuard } from '../auth/jwt-auth-guard';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller(`${BASE_PREFIX_API}/requests`)     
 export class RequestsController {
@@ -28,7 +43,7 @@ export class RequestsController {
             data: allRequests.items, 
             paginate: { 
                 page: allRequests.meta.itemCount, 
-                pageCount: allRequests.meta.totalPages 
+                pageCount: allRequests.meta.totalPages
             }
         };
     };
@@ -41,7 +56,13 @@ export class RequestsController {
         @Query('query') query: string,
     ) {
         const requestForClient = await this.requestService.requestsClient({page, limit}, id, query);
-        return requestForClient.items
+        return {
+            data: requestForClient.items,
+            paginate: { 
+                page: requestForClient.meta.itemCount,
+                pageCount: requestForClient.meta.totalPages
+            }
+        }
     }
 
     @ApiTags()
@@ -53,14 +74,16 @@ export class RequestsController {
     }
 
     @UseGuards(JwtAuthGuard)
+    @UseInterceptors(FileInterceptor('file'))
     @ApiTags('create')
     @Post('/create/:clientId')
     async createRequest(
         @Body() body: CreateRequestDto,
         @Param('clientId', ParseIntPipe) clientId: number,
+        @UploadedFile() file: Express.Multer.File
     ) {
-        const create = await this.requestService.createRequest(body, clientId);
-        return create;
+        console.log(body, file)
+        return await this.requestService.createRequest(body, clientId, file);
     }
 
     @ApiTags('update')
@@ -96,7 +119,6 @@ export class RequestsController {
     @Post('/comment')
     async createComment(
         @Body() data: CreateCommentDto,
-       // @Request() req,
     ) {
         //const { user } = req;
         return await this.requestService.createComment(data);

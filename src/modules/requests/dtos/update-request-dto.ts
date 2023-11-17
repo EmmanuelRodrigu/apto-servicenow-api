@@ -11,12 +11,6 @@ export class UpdateRequestDto {
 
     @ApiProperty()
     @IsNotEmpty({
-        message: 'El campo descripcion es requerido'
-    })
-    description: string;
-
-    @ApiProperty()
-    @IsNotEmpty({
         message: 'El campo responsable es requerido'
     })
     reporter: string;

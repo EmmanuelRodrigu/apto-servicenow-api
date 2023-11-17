@@ -29,9 +29,6 @@ export class AccountUsersJira {
     // @OneToMany((type) => Assignee, (assignee) => assignee.account)
     // assigne: Assignee[];
     
-    @OneToMany((type) => CommetsRequest, (comment) => comment.account)
-    comment: CommetsRequest[];
-    
     @OneToMany((type) => SupportRequest, (request) => request.reporter)
     requestReporter: SupportRequest[];
     

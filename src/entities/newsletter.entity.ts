@@ -1,5 +1,4 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne } from "typeorm";
-import { User } from "./user.entity";
+import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
 
 @Entity({name: "newsletters"})
 export class Newsletter {
@@ -9,22 +8,35 @@ export class Newsletter {
     })
     id: number;
 
-    @ManyToOne(() => User, user => user.users)
-    created_by: User;
-    
-    @ManyToOne(() => User, user => user.users)
-    updated_by: User;
+    @Column({
+        type: 'varchar',
+        name: 'title'
+    })
+    title: string;
+
+    @Column({
+        type: 'varchar',
+        name: 'description'
+    })
+    description: string;
 
     @Column({
         type: 'datetime',
         default: () => 'CURRENT_TIMESTAMP',
     })
     created_at: Date;
-    
+
     @Column({
-        type: 'datetime',
-        default: () => 'CURRENT_TIMESTAMP',
+        type: 'varchar',
+        name: 'url'
     })
-    updated_at: Date;
+    url: string;
+
+    @Column({
+        type: 'tinyint',
+        name: 'isView',
+        default: false,
+    })
+    isView: boolean;
 
 }

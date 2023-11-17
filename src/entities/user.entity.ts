@@ -38,9 +38,6 @@ export class User {
     })
     full_name: string;
 
-    @OneToMany(() => Newsletter, newsletter => newsletter.created_by)
-    users: Newsletter[]
-
     @Column({
         type: 'int'
     })

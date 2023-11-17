@@ -32,10 +32,20 @@ export class AuthController {
 
     @UseGuards(JwtAuthGuard)
     @Get('me')
-    async getAuth(@Request() req) {
+    async getAuth(
+        @Request() req,
+    ) {
         const { user } = req;
         const findUser = await this.authService.authMe(user);
         return findUser;
+    }
+
+    @ApiTags('forgotPassword')
+    @Post('forgotPassword')
+    async forgotPassword(
+        @Body() body,
+    ) {
+        return await this.authService.forgotPassword(body.email);
     }
 
 } 

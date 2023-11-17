@@ -6,6 +6,11 @@ export class LoginWithGoogleDto {
         message: 'El campo correo electronico es requerido'
     })
     @IsEmail()
-    readonly email: string;
+    email: string;
+
+    @IsNotEmpty({
+        message: 'El campo nombre es requerido'
+    })
+    fullName: string;
 
 }

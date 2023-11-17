@@ -1,13 +1,17 @@
 import { Module } from '@nestjs/common';
-import { NewsletterService } from './newsletter.service';
 import { NewsletterController } from './newsletter.controller';
+import { NewsletterService } from './newsletter.service';
+import { Newsletter } from "../../entities/newsletter.entity";
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Newsletter } from 'src/entities/newsletter.entity';
-import { Banner } from 'src/entities/banner.entity';
+import { S3FilesService } from '../s3-files/s3-files.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Newsletter, Banner])],
-  providers: [NewsletterService],
+  imports: [
+    TypeOrmModule.forFeature([
+      Newsletter
+    ])
+  ],
   controllers: [NewsletterController],
+  providers: [NewsletterService, S3FilesService]
 })
 export class NewsletterModule {}

@@ -1,5 +1,6 @@
-import { Column, Entity, JoinColumn, OneToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { User } from "./user.entity";
+import { CommetsRequest } from "./commets-request.entity";
 
 @Entity({name: "account_user"})
 export class AccountUser {
@@ -43,5 +44,8 @@ export class AccountUser {
         default: false,
     })
     googleAuth: boolean;
+
+    @OneToMany((type) => CommetsRequest, (request) => request.comment )
+    comment: CommetsRequest[];
 
 }

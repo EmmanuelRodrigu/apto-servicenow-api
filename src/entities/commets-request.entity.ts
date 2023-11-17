@@ -1,7 +1,6 @@
-import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { SupportRequest } from "./support-request.entity";
-import { AccountUsersJira } from "./account-user-jira.entity";
-
+import { AccountUser } from "./account-user.entity";
 
 @Entity({ name: 'comments' })
 export class CommetsRequest {
@@ -32,8 +31,11 @@ export class CommetsRequest {
     @ManyToOne((type) => SupportRequest, (request) => request.comment )
     request: SupportRequest;
 
-    @ManyToOne((type) => AccountUsersJira, (account) => account.comment )
-    account: AccountUsersJira;
+    @ManyToOne((type) => AccountUser, (account) => account.comment )
+    @JoinColumn({
+        name: 'accountId',
+    })
+    accountId: number;
 
 
 }

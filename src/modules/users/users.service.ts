@@ -179,17 +179,37 @@ export class UsersService {
     }
 
     async getUsersJira() {
-        const usersJira = await this.usersJira.getUserOnJira();
-        let data = [];
-        usersJira.data.map((user) => {
-            if(user.locale && user.displayName) {
-                data.push(
-                    {value: user.accountId, label: user.displayName, avatarUrl: user.avatarUrls['48x48']},
-                )
-            }
-        })
+        // const usersJira = await this.usersJira.getUserOnJira();
+        // let data = [];
+        // usersJira.data.map((user) => {
+        //     if(user.locale && user.displayName) {
+        //         data.push(
+        //             {value: user.accountId, label: user.displayName, avatarUrl: user.avatarUrls['48x48']},
+        //         )
+        //     }
+        // })
 
-        return data;
+        // return data;
+        return [
+            {
+                value: '5f59be2b0b2aef0068ceba2a', 
+                label: 'Cristian Cruz', 
+                avatarUrl: 'https://secure.gravatar.com/avatar/86adf2801200bf42ca828ebbeb0670f5?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FCC-2.png',
+                email: 'cristian@apto.mx',
+            },
+            {
+                value: '557058:d14d43ca-cef3-4d2d-b402-bbbf6cc9d8e0', 
+                label: 'José Manuel Corona', 
+                avatarUrl: 'https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/557058:d14d43ca-cef3-4d2d-b402-bbbf6cc9d8e0/626dc7d8-0473-47de-953e-bc3a5bde0736/48',
+                email: 'jcorona@apto.mx',
+            },
+            {
+                value: '63977fab76fb74a951420eaf', 
+                label: 'Emmanuel Rodriguez Montes', 
+                avatarUrl: 'https://avatar-management--avatars.us-west-2.prod.public.atl-paas.net/63977fab76fb74a951420eaf/411c9f8a-301a-4a9b-bcfa-08299e5ba2e9/48',
+                email: 'emmanuel@apto.mx',
+            }
+        ]
     };
 
     async syncUsers() {

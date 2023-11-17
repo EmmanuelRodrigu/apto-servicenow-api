@@ -14,6 +14,9 @@ import { Pagination, IPaginationOptions, paginate } from 'nestjs-typeorm-paginat
 import { RequestJira } from './requestsJira/requests-jira';
 import { FOR_PAGE } from 'src/config/constants';
 import { AccountUsersJira } from 'src/entities/account-user-jira.entity';
+import { MailService } from '../mail/mail.service';
+import { S3FilesService } from '../s3-files/s3-files.service';
+import { DescriptionRequest } from 'src/entities/description-request.entity';
 
 @Injectable()
 export class RequestsService {
@@ -24,10 +27,13 @@ export class RequestsService {
         @InjectRepository(Project) private projectRepository: Repository<Project>,
         @InjectRepository(CommetsRequest) private commentReporsitory: Repository<CommetsRequest>,
         @InjectRepository(AccountUsersJira) private accountUsersJiraReporsitory: Repository<AccountUsersJira>,
-        private requestJira: RequestJira,
+        @InjectRepository(DescriptionRequest) private descriptionRequestRepository: Repository<DescriptionRequest>,
+        private readonly requestJira: RequestJira,
+        private readonly mailService: MailService,
+        private s3FileService: S3FilesService,
     ) {}
 
-    async createRequest(body: CreateRequestDto, clientId: number) {
+    async createRequest(body: CreateRequestDto, clientId: number, file: Express.Multer.File) {
         const project = await this.projectRepository.findOne({
             where: {
                 clientId: clientId,
@@ -45,7 +51,6 @@ export class RequestsService {
         
         const date = new Date();
         const request = {
-            description: body.description,
             type_request: body.type_request,
             summary: body.summary,
             created_at: date,
@@ -53,10 +58,27 @@ export class RequestsService {
             status: 'Backlog',
             reporterId: reporter.id
         };
-        
         const saveRequest = await this.requestRepository.save(request);
+        let descriptionRequest = []
+        body.description.map((value) => {
+            descriptionRequest.push({ 
+                depth: value.depth,
+                key: value.key,
+                text: value.text,
+                type: value.type,
+                requestId: saveRequest.id
+            })
+        })
+        await this.descriptionRequestRepository.save(descriptionRequest)
 
-        return saveRequest;
+        await this.mailService.sendCreateIssue(body.email, body.type_request, reporter.displayName);
+        await this.projectRepository.update({ id: project.id }, { no_requests: project.no_requests + 1 });
+        const uploadFile = await this.s3FileService.uploadFile(file);
+
+        return {
+            saveRequest, 
+            uploadFile,
+        };
         
 
     };
@@ -88,16 +110,37 @@ export class RequestsService {
                 });
             }
         }
+
         const comments = await this.commentReporsitory.find({
             where: { requestId:  id}
         });
+
+        const descriptionRequest = await this.descriptionRequestRepository.find({
+            where: {
+                requestId: request.id
+            }
+        });
+
+        let blocks = [];
+        descriptionRequest.map((value) => {
+            blocks.push(
+                {
+                    text: value.text,
+                    type: value.type,
+                    depth: value.depth,
+                    inlineStyleRanges: [],
+                    entityRanges: [],
+                    data: {},
+                }
+            )
+        })
 
         if(request.assigneeId != null) {
             const accountAssignee = await this.accountUsersJiraReporsitory.findOne({
                 where: {
                     id: request.assigneeId
                 }
-            })
+            });
             const assignee = await this.requestJira.getUser(accountAssignee.accountId);
             return {
                 ...request,
@@ -109,7 +152,11 @@ export class RequestsService {
                 assignee: [{value: assignee.accountId, label: assignee.displayName}],
                 users: users,
                 issue: issue,
-                comments: comments
+                comments: comments,
+                description: [{
+                    blocks,
+                    entityMap: {}
+                }],
             };
         };
         return {
@@ -118,8 +165,12 @@ export class RequestsService {
             reporter: [{value: reporter.accountId, label: reporter.displayName}],
             users: users,
             issue: issue,
-            comments: comments
-        }
+            comments: comments,
+            description: [{
+                blocks,
+                entityMap: {}
+            }],
+        };
         
     };
 
@@ -188,29 +239,36 @@ export class RequestsService {
                 accountId: body.assignee
             }
         });
+
         const data = {
             summary: body.summary,
-            description: body.description,
             assigneeId: assignee.id
         }
         const updateRequest = await this.requestRepository.update({ id: id }, data);
-        if(!updateRequest){
+        if(updateRequest.affected < 1){
             return new HttpException('Error al actualizar solicitud', HttpStatus.CONFLICT);
         };
         const request = await this.requestRepository.findOne({
             where: { id: id }
         })
-        const updateAssign = await this.requestJira.updateTask(request.id_jira, body.assignee);
-        
-        if(updateAssign ) {
+        let updateAssign;
+        if(request.key) {
+            updateAssign = await this.requestJira.updateTask(request.id_jira, body.assignee);
+            if(updateAssign ) {
+                return {
+                    message: 'Solicitud actualizada exitosamente',
+                    status: true,
+                };
+            };
             return {
-                message: 'Solicitud actualizada exitosamente',
-                status: true,
+                message: 'Error al actualizar solicitud',
+                status: false,
             };
         };
+
         return {
-            message: 'Error al actualizar solicitud',
-            status: false,
+            message: 'Solicitud actualizada exitosamente',
+            status: true,
         };
 
     };
@@ -251,9 +309,15 @@ export class RequestsService {
             requestId: id
         });
 
+        await this.descriptionRequestRepository.delete({
+            requestId: id
+        });
+
         const deleteRequest = await this.requestRepository.delete(id);
         if(deleteRequest.affected > 0) {
-            await this.requestJira.deleteIssue(issue.key);
+            if(issue.key) {
+                await this.requestJira.deleteIssue(issue.key);
+            }
             return {
                 message: 'Solicitud eliminada exitosamente',
                 status: true,
@@ -266,6 +330,7 @@ export class RequestsService {
     };
 
     async createComment(data: CreateCommentDto) {
+        console.log(data)
         const request = await this.requestRepository.findOne({
             where: {
                 id: data.requestId

@@ -2,6 +2,7 @@ import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "ty
 import { Project } from "./project.entity";
 import { CommetsRequest } from "./commets-request.entity";
 import { AccountUsersJira } from "./account-user-jira.entity";
+import { DescriptionRequest } from "./description-request.entity";
 
 // export enum Statuses {
 //     BACKLOG = 'Backlog',
@@ -61,10 +62,10 @@ export class SupportRequest {
     })
     summary: string;
     
-    @Column({
-        type: 'varchar',
-    })
-    description: string;
+    // @Column({
+    //     type: 'varchar',
+    // })
+    // description: string;
 
     @Column({
         type: 'datetime',
@@ -89,11 +90,8 @@ a
     @OneToMany((type) => CommetsRequest, (comment) => comment.request)
     comment: CommetsRequest[];
 
-    // @OneToMany((type) => Assignee, (assignee) => assignee.request)
-    // assignee: Assignee[];
-    
-    // @OneToMany((type) => Reporters, (reporter) => reporter.request)
-    // reporter: Reporters[];
+    @OneToMany((type) => DescriptionRequest, (description) => description.request)
+    description: DescriptionRequest[];
 
     @ManyToOne((type) => AccountUsersJira, (account) => account.requestReporter)
     reporter: AccountUsersJira[];

@@ -12,6 +12,9 @@ import { Pagination, IPaginationOptions, paginate } from 'nestjs-typeorm-paginat
 import { CreateAccountDto } from './dtos/create-account.dto';
 import { ChangePasswordDto } from './dtos/change-password.dto';
 import { SupportRequest } from 'src/entities/support-request.entity';
+import { Weekly } from 'src/entities/weekly.entity';
+import { CreateWeeklyDto } from './dtos/create-weekly.dto';
+import { S3FilesService } from '../s3-files/s3-files.service';
 
 @Injectable()
 export class ClientsService {
@@ -21,7 +24,8 @@ export class ClientsService {
         @InjectRepository(TaxData) private taxDataRepository: Repository<TaxData>,
         @InjectRepository(Project) private projectRepository: Repository<Project>,
         @InjectRepository(AccountClient) private accountClientRepository: Repository<AccountClient>,
-        @InjectRepository(SupportRequest) private requestRepository: Repository<SupportRequest>,
+        @InjectRepository(Weekly) private weeklyRepository: Repository<Weekly>,
+        private s3FilesService: S3FilesService,
     ) {}
 
     async getAllClients(options: IPaginationOptions, query: string, order: 'ASC' | 'DESC', option: string): Promise<Pagination<Client>> {
@@ -203,6 +207,11 @@ export class ClientsService {
             return new HttpException('Error al eliminar cliente', HttpStatus.CONFLICT);
         };
         
+        const deleteDocuments = await this.weeklyRepository.delete({ clientId: id });
+        if(!deleteDocuments) {
+            return new HttpException('Error al eliminar cliente', HttpStatus.CONFLICT);
+        };
+
         const deleteClient = await this.clientRepository.delete({id});
         if(!deleteClient) {
             return new HttpException('Error al eliminar cliente', HttpStatus.CONFLICT);
@@ -301,6 +310,30 @@ export class ClientsService {
             createdAt: project.created_at,
             avatarUrl: project.avatar_url,
         };
+    };
+
+    async createWeekly(clientId: number, body: CreateWeeklyDto, file: Express.Multer.File) {
+        const uploadFile = await this.s3FilesService.uploadFile(file);
+        const data = {
+            ...body,
+            urlFile: uploadFile.Location,
+            clientId: clientId,
+        };
+        const saveWeekly = await this.weeklyRepository.save(data);
+        if(!saveWeekly) {
+            throw new HttpException('Error al crear avance semanal', HttpStatus.CONFLICT)
+        };
+
+        return {
+            message: 'Avance semanal creado exitosamente',
+            status: true,
+        };
+    };
+
+    async weeklyForClient(clientId: number) {
+        return await this.weeklyRepository.find({
+            where: { clientId }
+        });
     };
 
 }

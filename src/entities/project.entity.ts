@@ -2,7 +2,7 @@ import { Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "ty
 import { Client } from "./client.entity";
 import { SupportRequest } from "./support-request.entity";
 
-enum TypeProject {
+export enum TypeProject {
     software = "software",
     service_desk = "service_desk",
     business = "business",
@@ -66,6 +66,13 @@ export class Project {
         default: () => 'CURRENT_TIMESTAMP',
     })
     created_at: Date;
+
+    @Column({
+        type: 'int',
+        nullable: true,
+        default: () => 0,
+    })
+    no_requests: number;
 
     @OneToMany((type) => SupportRequest, (request) => request.project)
     request: SupportRequest;

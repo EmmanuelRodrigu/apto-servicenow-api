@@ -11,6 +11,7 @@ import { LoginWithGoogleDto } from './dtos/login-google.dto';
 import { ModulePermissions } from 'src/entities/modules-permissions.entity';
 import { AccountClient } from 'src/entities/account-client.entity';
 import { Client } from 'src/entities/client.entity';
+import { MailService } from '../mail/mail.service';
 
 @Injectable()
 export class AuthService {
@@ -21,7 +22,8 @@ export class AuthService {
     @InjectRepository(Rol) private rolRepository: Repository<Rol>,
     @InjectRepository(AccountClient) private accountClientRepository: Repository<AccountClient>,
     @InjectRepository(Client) private clientRepository: Repository<Client>,
-    private jwtService: JwtService
+    private readonly jwtService: JwtService,
+    private readonly mailService: MailService,
   ) { }
 
   async signInPortal(email: string, password: string) {
@@ -115,11 +117,11 @@ export class AuthService {
 
   async signInWithGoogle(credentials: LoginWithGoogleDto) {
     const { email } = credentials;
-    const updateSession = await this.accountUserRepository.update({ email: email }, { isActive: true, googleAuth: true })
-    if (!updateSession) {
-      return new HttpException('Error al iniciar sesion con google', HttpStatus.CONFLICT);
+    const payload = { username: credentials.fullName, email: email };
+    return {
+      access_token: await this.jwtService.signAsync(payload),
+      status: true
     }
-    return updateSession;
   }
 
   async logOut(email: string) {
@@ -145,9 +147,29 @@ export class AuthService {
         rol: 'Client',
       },
     }
+  };
+
+  async authMeGoogle(data: { username: string, email: string }) {
+    return{
+      user: {
+        username: data.username,
+        email: data.email,
+        rol: 'google'
+      },
+      modulesPermissions: [
+        'Dashboard',
+        'News',
+        'Projects',
+        'Requests',
+      ]
+    }
   }
 
-  async authMe(userData: { userId: number, username: string, email: string }) {
+  async authMe(userData: { userId?: number, username: string, email: string }) {
+    console.log(userData)
+    if(!userData.userId) {
+      return this.authMeGoogle(userData);
+    }
     if(!userData.email.includes('@apto')) {
       return this.authMePortal(userData.userId);
     }
@@ -187,6 +209,25 @@ export class AuthService {
       },
       modulesPermissions
     }
-  }
+  };
+
+  async forgotPassword(email: string) {
+    const findUser = await this.accountUserRepository.findOne({
+      where: { email }
+    });
+
+    if(!findUser) {
+      return {
+        message: 'El correo electronico no existe',
+        status: false,
+      };
+    };
+    await this.mailService.sendForgotPassword(email);
+    return {
+      message: `Se ha enviado un correo a ${email} con las indicaciones para restablecer tu contraseña`,
+      status: true,
+    }
+
+  };
 
 }

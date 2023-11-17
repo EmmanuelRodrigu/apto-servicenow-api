@@ -11,6 +11,8 @@ import { Rol } from 'src/entities/rol.entity';
 import { AccountClient } from 'src/entities/account-client.entity';
 import { Client } from 'src/entities/client.entity';
 import { JwtStrategy } from './jwt.strategy';
+import { MailModule } from '../mail/mail.module';
+
 
 @Module({
   imports: [
@@ -26,7 +28,8 @@ import { JwtStrategy } from './jwt.strategy';
       global: true,
       secret: jwtConstants.secret,
       signOptions: {expiresIn: '24h'},
-    })
+    }),
+    MailModule
   ],
   providers: [AuthService, JwtStrategy],
   controllers: [AuthController],

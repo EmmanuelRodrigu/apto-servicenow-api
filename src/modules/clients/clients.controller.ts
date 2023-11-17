@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Put, Delete, Query, DefaultValuePipe, ParseIntPipe } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Put, Delete, Query, DefaultValuePipe, ParseIntPipe, UseInterceptors, UseGuards, UploadedFile } from '@nestjs/common';
 import { BASE_PREFIX_API, FOR_PAGE, DEFAULT_PAGE } from 'src/config/constants';
 import { ClientsService } from './clients.service';
 import { ApiTags } from '@nestjs/swagger';
@@ -6,6 +6,9 @@ import { CreateClientDto } from './dtos/create-client.dto';
 import { UpdateClientDto } from './dtos/update-client.dto';
 import { CreateAccountDto } from './dtos/create-account.dto';
 import { ChangePasswordDto } from './dtos/change-password.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { JwtAuthGuard } from '../auth/jwt-auth-guard';
+import { CreateWeeklyDto } from './dtos/create-weekly.dto';
 
 @Controller(`${BASE_PREFIX_API}/clients`)
 export class ClientsController {
@@ -171,5 +174,25 @@ export class ClientsController {
     ) {
         return await this.clientsService.changePassword(body);
     };
+
+    @ApiTags('create-weekly')
+    //@UseGuards(JwtAuthGuard)
+    @UseInterceptors(FileInterceptor('file'))
+    @Post('/:clientId/create/weekly')
+    async createWeekly(
+        @Param('clientId', ParseIntPipe) clientId: number,
+        @Body() body: CreateWeeklyDto,
+        @UploadedFile() file: Express.Multer.File
+    ) {
+        return await this.clientsService.createWeekly(clientId, body, file);
+    };
+
+    @ApiTags('weekly')
+    @Get('/:clientId/weekly')
+    async getWeeklyForClient(
+        @Param('clientId', ParseIntPipe) clientId: number,
+    ) {
+        return await this.clientsService.weeklyForClient(clientId);
+    }
 
 }

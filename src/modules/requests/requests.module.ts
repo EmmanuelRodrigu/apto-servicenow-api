@@ -9,12 +9,24 @@ import { Project } from 'src/entities/project.entity';
 import { CommetsRequest } from 'src/entities/commets-request.entity';
 import { RequestJira } from './requestsJira/requests-jira';
 import { AccountUsersJira } from 'src/entities/account-user-jira.entity';
+import { MailModule } from '../mail/mail.module';
+import { S3FilesService } from '../s3-files/s3-files.service';
+import { DescriptionRequest } from 'src/entities/description-request.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([
-    SupportRequest, User, Client, Project, CommetsRequest, AccountUsersJira,
-  ])],
-  providers: [RequestsService, RequestJira],
+  imports: [
+    TypeOrmModule.forFeature([
+    SupportRequest, 
+    User, 
+    Client, 
+    Project, 
+    CommetsRequest, 
+    AccountUsersJira,
+    DescriptionRequest
+  ]),
+  MailModule
+  ],
+  providers: [RequestsService, RequestJira, S3FilesService],
   controllers: [RequestsController]
 })
 export class RequestsModule {}

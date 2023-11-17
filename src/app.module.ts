@@ -12,7 +12,6 @@ import { ClientsModule } from './modules/clients/clients.module';
 import { PaymentsModule } from './modules/payments/payments.module';
 import { NewsletterModule } from './modules/newsletter/newsletter.module';
 import { AuthModule } from './modules/auth/auth.module';
-import { config } from '.././database/ormconfig';
 import {
   DB_HOST,
   DB_NAME,
@@ -20,6 +19,9 @@ import {
   DB_PORT,
   DB_USER,
 } from './config/constants'
+import { DashboardModule } from './modules/dashboard/dashboard.module';
+import { MailModule } from './modules/mail/mail.module';
+import { S3FilesModule } from './modules/s3-files/s3-files.module';
 
 @Module({
   imports: [
@@ -48,6 +50,9 @@ import {
     PaymentsModule,
     NewsletterModule,
     AuthModule,
+    DashboardModule,
+    MailModule,
+    S3FilesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
