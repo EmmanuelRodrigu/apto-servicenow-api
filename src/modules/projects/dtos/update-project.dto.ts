@@ -11,20 +11,11 @@ export class UpdateProjectDto {
     name: string;
     
     @ApiProperty()
-    @IsNotEmpty({
-        message: 'El cliente es requerido'
-    })
-    rfc_client: number;
+    @IsOptional()
+    rfc_client: string;
     
     @ApiProperty()
     @IsOptional()
     description: string;
-    
-    @ApiProperty()
-    @MinLength(1, {
-        message: 'El cliente debe contener al menos 1 elemento'
-    })
-    type_project: [];
-
 
 }

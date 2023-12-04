@@ -19,12 +19,14 @@ export class Project {
     @Column({
         type: 'int',
         name: 'id_jira',
+        nullable: true,
     })
     id_jira: number;
 
     @Column({
         type: 'varchar',
         name: 'key',
+        nullable: true,
     })
     key: string;
 
@@ -49,6 +51,7 @@ export class Project {
     @Column({
         type: 'varchar',
         name: 'avatar_url',
+        nullable: true,
     })
     avatar_url: string;
 

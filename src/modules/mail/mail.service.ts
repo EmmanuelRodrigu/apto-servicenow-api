@@ -7,27 +7,27 @@ export class MailService {
         private mailerService: MailerService
     ) {}
 
-    async sendForgotPassword(email: string) {
+    async sendForgotPassword(email: string, name: string) {
         await this.mailerService.sendMail({
             to: email,
-            subject: 'Forgot Password',
+            subject: 'Recuperar contraseña',
             template: './forgot-password',
             context: {
-                name: 'Emmanuel',
+                name: name,
                 url: 'https://Example.com'
-            },
+            }
         });
     };
 
-    async sendCreateIssue(email: string, type_request: string, reporter: string) {
+    async sendCreateIssue(email: string, type_request: string, reporter: string, description: string) {
         await this.mailerService.sendMail({
             to: email,
-            subject: 'Forgot Password',
+            subject: 'Nueva solicitud creada',
             template: './create-issue',
             context: {
                 type_request: type_request,
                 reporter: reporter,
-                url: 'https://example.com'
+                description: description,
             },
         });
     };

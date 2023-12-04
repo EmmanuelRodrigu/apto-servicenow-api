@@ -9,7 +9,7 @@ import { JwtAuthGuard } from './jwt-auth-guard';
 export class AuthController {
     constructor(private authService: AuthService) {}
     
-    @ApiTags('login')
+    @ApiTags('auth')
     @HttpCode(HttpStatus.OK)
     @Post('login')
     async signIn(@Body() credentials: LoginDto) {
@@ -17,14 +17,14 @@ export class AuthController {
         return signin;
     }
 
-    @ApiTags('google-auth')
+    @ApiTags('auth')
     @HttpCode(HttpStatus.OK)
     @Post('google')
     signInWithGoogle(@Body() Credential: LoginWithGoogleDto) {
         return this.authService.signInWithGoogle(Credential);
     }
 
-    @ApiTags('logout')
+    @ApiTags('auth')
     @Post('logout')
     logOut(@Body() email: string) {
         return this.authService.logOut(email);
@@ -40,7 +40,7 @@ export class AuthController {
         return findUser;
     }
 
-    @ApiTags('forgotPassword')
+    @ApiTags('auth')
     @Post('forgotPassword')
     async forgotPassword(
         @Body() body,

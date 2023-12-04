@@ -27,18 +27,20 @@ export class UsersController {
         return {data: user.items, paginate: { page: user.meta.itemCount, pageCount: user.meta.totalPages }};
     }
     
+    @ApiTags('users')
     @Get('/jira')
     async getUsersJira() {
         const getUsersJira = await this.userService.getUsersJira();
         return getUsersJira;
     }
 
+    @ApiTags('users')
     @Get('/synchronizer')
     async syncUsers(){
         return await this.userService.syncUsers();
     }
     
-    @ApiTags('id')
+    @ApiTags('users')
     @Get('/:id')
     async getUserById(@Param('id') id: number) {
         const getUserById = await this.userService.getUserById(id);
@@ -61,7 +63,7 @@ export class UsersController {
         return createUser;
     }
 
-    @ApiTags('update')
+    @ApiTags('users')
     @Put('/update/:id')
     async updateUser(
         @Body() body: UpdateUserDto,

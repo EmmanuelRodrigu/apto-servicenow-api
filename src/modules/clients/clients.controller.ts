@@ -16,7 +16,7 @@ export class ClientsController {
         private clientsService: ClientsService,
     ) {}
 
-    @ApiTags('all-clients')
+    @ApiTags('clients')
     @Get('')
     async getAllClients(
         @Query('page', new DefaultValuePipe(DEFAULT_PAGE), ParseIntPipe) page: number = DEFAULT_PAGE,
@@ -50,7 +50,7 @@ export class ClientsController {
         return options;
     }
 
-    @ApiTags('create')
+    @ApiTags('clients')
     @Post('create')
     async createClient(@Body() body: CreateClientDto) {
         const dataClient = {
@@ -86,27 +86,28 @@ export class ClientsController {
         return createClient;
     }
 
-    @ApiTags('TaxData')
+    @ApiTags('clients')
     @Get('taxdata')
     async getTaxData() {
         const taxData = await this.clientsService.getTaxData()
         return taxData;
     }
 
+    @ApiTags('clients')
     @Get('taxdata/:id')
     async getTaxDataById(@Param('id') id: number) {
         const taxDataById = await this.clientsService.getTaxDataById(id);
         return taxDataById;
     }
     
-    @ApiTags('details')
+    @ApiTags('clients')
     @Get('/:id')
     async detailsClient(@Param('id') id: number) {
         const detailsClient = await this.clientsService.detailsClient(id);
         return detailsClient;
     }
 
-    @ApiTags('update')
+    @ApiTags('clients')
     @Put('update/:id')
     async updateClient(@Body() body: UpdateClientDto, @Param('id') id: number ) {
         const dataClient = {
@@ -142,14 +143,14 @@ export class ClientsController {
         return updateClient;
     }
 
-    @ApiTags('delete')
+    @ApiTags('clients')
     @Delete('delete/:id')
     async deleteclient(@Param('id') id: number) {
         const deleteClient = await this.clientsService.deleteClient(id);
         return deleteClient;
     }
 
-    @ApiTags('create-account')
+    @ApiTags('clients')
     @Post('create-account/:clientId')
     async createAccount(
         @Body() body: CreateAccountDto,
@@ -159,6 +160,7 @@ export class ClientsController {
         return createAccount;
     }
 
+    @ApiTags('clients')
     @Get('/:clientId/data-client')
     async getDataClient(
         @Param('clientId', ParseIntPipe) clientId: number,
@@ -167,7 +169,7 @@ export class ClientsController {
         return getDataClient;
     };
 
-    @ApiTags('changePassword')
+    @ApiTags('clients')
     @Put('change-password')
     async changePassword(
         @Body() body: ChangePasswordDto,
@@ -175,7 +177,7 @@ export class ClientsController {
         return await this.clientsService.changePassword(body);
     };
 
-    @ApiTags('create-weekly')
+    @ApiTags('clients')
     //@UseGuards(JwtAuthGuard)
     @UseInterceptors(FileInterceptor('file'))
     @Post('/:clientId/create/weekly')
@@ -187,7 +189,7 @@ export class ClientsController {
         return await this.clientsService.createWeekly(clientId, body, file);
     };
 
-    @ApiTags('weekly')
+    @ApiTags('clients')
     @Get('/:clientId/weekly')
     async getWeeklyForClient(
         @Param('clientId', ParseIntPipe) clientId: number,

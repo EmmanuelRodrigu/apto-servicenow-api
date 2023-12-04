@@ -30,39 +30,42 @@ export class ProjectsController {
         };
     }
     
+    @ApiTags('projects')
     @Get('jira')
     async getAllUsersJira() {
         const getAllUsersJira = await this.projectsService.getProjectsJira()
         return getAllUsersJira;
     }
     
+    @ApiTags('projects')
     @Get('sync')
     async syncProjects() {
         const syncProjects = await this.projectsService.syncProjects()
         return syncProjects;
     }
 
+    @ApiTags('projects')
     @Get('/:id')
     async getPtoject(@Param('id') id: number) {
         const getProject = await this.projectsService.getProject(id);
         return getProject;
     }
 
-    @ApiTags('create-project')
+    @ApiTags('projects')
     @Post('create')
     async createProject(@Body() body: CreateProjectDto) {
         const createProject = await this.projectsService.createProject(body);
         return createProject;
     }
 
-    @ApiTags('delete')
+    @ApiTags('projects')
     @Delete('delete/:id')
     async deleteProject(@Param('id') id: number){
         const deleteProject = await this.projectsService.deleteProject(id);
         return deleteProject;
     }
 
-    @ApiTags('update')
+    @ApiTags('projects')
     @Put('update/:id')
     async updateProject(@Param('id') id: number, @Body() body: UpdateProjectDto) {
         const updateProject = await this.projectsService.updateProject(id, body);

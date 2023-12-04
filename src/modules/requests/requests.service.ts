@@ -71,9 +71,12 @@ export class RequestsService {
         })
         await this.descriptionRequestRepository.save(descriptionRequest)
 
-        await this.mailService.sendCreateIssue(body.email, body.type_request, reporter.displayName);
+        await this.mailService.sendCreateIssue(body.email, body.type_request, reporter.displayName, body.summary);
         await this.projectRepository.update({ id: project.id }, { no_requests: project.no_requests + 1 });
-        const uploadFile = await this.s3FileService.uploadFile(file);
+        let uploadFile;
+        if(file) {
+            uploadFile = await this.s3FileService.uploadFile(file);
+        }
 
         return {
             saveRequest, 

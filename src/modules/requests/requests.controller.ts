@@ -29,7 +29,7 @@ export class RequestsController {
         private requestService: RequestsService,
     ) {}
 
-    @ApiTags('all-requests')
+    @ApiTags('requests')
     @Get('')
     async getAllRequests(
         @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number = DEFAULT_PAGE,
@@ -48,6 +48,7 @@ export class RequestsController {
         };
     };
 
+    @ApiTags('requests')
     @Get('/:clientId')
     async requestClient(
         @Param('clientId', ParseIntPipe) id: number,
@@ -65,7 +66,7 @@ export class RequestsController {
         }
     }
 
-    @ApiTags()
+    @ApiTags('requests')
     @Get('/:id/details')
     async getRequest(
         @Param('id', ParseIntPipe) id: number,
@@ -75,7 +76,7 @@ export class RequestsController {
 
     @UseGuards(JwtAuthGuard)
     @UseInterceptors(FileInterceptor('file'))
-    @ApiTags('create')
+    @ApiTags('requests')
     @Post('/create/:clientId')
     async createRequest(
         @Body() body: CreateRequestDto,
@@ -86,7 +87,7 @@ export class RequestsController {
         return await this.requestService.createRequest(body, clientId, file);
     }
 
-    @ApiTags('update')
+    @ApiTags('requests')
     @Put('update/:id')
     async updateRequest(
         @Body() body: UpdateRequestDto,
@@ -96,7 +97,7 @@ export class RequestsController {
         return updateRequest;
     }
 
-    @ApiTags('accept')
+    @ApiTags('requests')
     @Post('/accept/:id')
     async acceptRequest(
         @Param('id', ParseIntPipe) id: number,
@@ -106,7 +107,7 @@ export class RequestsController {
         return acceptRequest;
     }
 
-    @ApiTags('delete')
+    @ApiTags('requests')
     @Delete('/delete/:id')
     async deleteRequest(
         @Param('id', ParseIntPipe) id: number,
@@ -115,7 +116,7 @@ export class RequestsController {
     };
 
     //@UseGuards(JwtAuthGuard)
-    @ApiTags('/comment')
+    @ApiTags('requests')
     @Post('/comment')
     async createComment(
         @Body() data: CreateCommentDto,

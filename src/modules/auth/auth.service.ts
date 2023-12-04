@@ -212,17 +212,23 @@ export class AuthService {
   };
 
   async forgotPassword(email: string) {
-    const findUser = await this.accountUserRepository.findOne({
+    const findAccountUser = await this.accountUserRepository.findOne({
       where: { email }
     });
 
-    if(!findUser) {
+    const user = await this.userRepository.findOne({
+      where: {
+        accountUserId: findAccountUser.id,
+      }
+    });
+
+    if(!findAccountUser) {
       return {
         message: 'El correo electronico no existe',
         status: false,
       };
     };
-    await this.mailService.sendForgotPassword(email);
+    await this.mailService.sendForgotPassword(email, user.full_name);
     return {
       message: `Se ha enviado un correo a ${email} con las indicaciones para restablecer tu contraseña`,
       status: true,

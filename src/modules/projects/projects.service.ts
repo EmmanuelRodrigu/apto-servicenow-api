@@ -236,7 +236,23 @@ export class ProjectsService {
             if(!existProject) {
                 return new HttpException('El proyecto no existe', HttpStatus.CONFLICT);
             };
-            console.log(data)
+            let client;
+            if(!data.rfc_client) {
+                client = await this.clientRepository.findOne({
+                    where: {
+                        rfc: data.rfc_client
+                    }
+                });
+            };
+            const updateProject = await this.projectRepository.update({ id }, {
+                name: data.name,
+                clientId: client.id,
+                description: data.description,
+            });
+            if(updateProject.affected > 0){
+                return true;
+            }
+            return false;
 
         }
 

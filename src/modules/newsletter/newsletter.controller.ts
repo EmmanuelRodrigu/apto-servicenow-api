@@ -18,13 +18,13 @@ export class NewsletterController {
         return await this.newsService.allNewsletter();
     };
 
-    @ApiTags('view')
+    @ApiTags('newsletter')
     @Get('view')
     async getNewsletter() {
         return await this.newsService.getNewsletter();
     };
 
-    @ApiTags('create-newsletter')
+    @ApiTags('newsletter')
     @UseInterceptors(FileInterceptor('file'))
     @Post('create')
     async createNewsletter(
@@ -34,7 +34,7 @@ export class NewsletterController {
         return await this.newsService.createNewsletter(body, file);
     };
 
-    @ApiTags('change-status')
+    @ApiTags('newsletter')
     @Put('change-status/:id')
     async changeStatus(
         @Param('id', ParseIntPipe) id: number,
@@ -42,7 +42,7 @@ export class NewsletterController {
         return await this.newsService.changeStatus(id)
     };
 
-    @ApiTags('delete')
+    @ApiTags('newsletter')
     @Delete('/:id/delete')
     async deleteNewsletter(
         @Param('id', ParseIntPipe) id: number,

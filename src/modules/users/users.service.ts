@@ -74,13 +74,7 @@ export class UsersService {
             rolId: roles.id
         };
         const newUser = await this.userRepository.save(user);
-        // const createUserRol = await this.userRolRepository.save({
-        //     rol: roles.id,
-        //     userId: newUser.id,
-        // });
-        // if (!createUserRol) {
-        //     return new HttpException('Error al crear usuario', HttpStatus.BAD_REQUEST);
-        // };
+        
         return { newUser, saveDataUser};
     }
 

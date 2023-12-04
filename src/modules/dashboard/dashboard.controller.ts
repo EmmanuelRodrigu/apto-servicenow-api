@@ -9,7 +9,7 @@ export class DashboardController {
         private dashboardService: DashboardService,
     ) {}
 
-    @ApiTags('requestForClient')
+    @ApiTags('dashboard')
     @Get('')
     async getRequestsForClient(
         @Query('status') status: string

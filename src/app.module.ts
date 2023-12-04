@@ -9,7 +9,6 @@ import validationSchema from './config/env.validation';
 import { RequestsModule } from './modules/requests/requests.module';
 import { ProjectsModule } from './modules/projects/projects.module';
 import { ClientsModule } from './modules/clients/clients.module';
-import { PaymentsModule } from './modules/payments/payments.module';
 import { NewsletterModule } from './modules/newsletter/newsletter.module';
 import { AuthModule } from './modules/auth/auth.module';
 import {
@@ -47,7 +46,6 @@ import { S3FilesModule } from './modules/s3-files/s3-files.module';
     RequestsModule,
     ProjectsModule,
     ClientsModule,
-    PaymentsModule,
     NewsletterModule,
     AuthModule,
     DashboardModule,
