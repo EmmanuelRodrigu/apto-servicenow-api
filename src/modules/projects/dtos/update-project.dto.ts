@@ -12,7 +12,7 @@ export class UpdateProjectDto {
     
     @ApiProperty()
     @IsOptional()
-    rfc_client: string;
+    clientId: string;
     
     @ApiProperty()
     @IsOptional()
